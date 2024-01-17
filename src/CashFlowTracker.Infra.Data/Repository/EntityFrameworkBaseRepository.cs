@@ -1,16 +1,10 @@
 ﻿using CashFlowTracker.Application.Interfaces.Repository;
 using CashFlowTracker.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CashFlowTracker.Infra.Data.Repository
 {
-
     public abstract class EntityFrameworkBaseRepository<TEntity> : IEntityFrameworkBaseRepository<TEntity> where TEntity : class
     {
         protected readonly SqlServerContext _context;
