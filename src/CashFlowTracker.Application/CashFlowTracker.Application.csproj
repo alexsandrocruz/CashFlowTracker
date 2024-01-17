@@ -12,7 +12,12 @@
     <Folder Include="Commons\Interfaces\" />
     <Folder Include="Commons\Models\" />
     <Folder Include="Commons\Producers\" />
+    <Folder Include="DTOs\" />
     <Folder Include="UseCase\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.2.0" />
   </ItemGroup>
 
   <ItemGroup>
