@@ -1,0 +1,534 @@
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.rr)
+
+trigger:
+  - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: aks
+  - group: docker
+  - name: IMG_REGISTRY
+    value: $(DOCKER_REGISTRY)
+  - name: IMG_TAG
+    value: $(Build.BuildId)
+  - name: sonarCloudOrganization
+    value: "edenred-ticketbenefits"
+  - name: sonarCloudProjectKey
+    value: "Edenred-TicketBenefits-Merchants-Establishment"
+  - name: sonarCloudProjectName
+    value: "Merchants Establishment"
+  - name: sonarCloudExclusions
+    value: >-
+      **/obj/**,
+      **/bin/**,
+      **/Models/**,
+      **/DependencyInjectionExtension/**,
+      **/Enums/**,
+      **/Entities/**,
+      **/Boundaries/**,
+      **/Interfaces/**,
+      **/TransactionMiddleware.cs,
+      **/Context/**,
+      **/Specifications/**,
+      **/DependencyInjectionExtension/**,
+      **/Commons/**,
+      **/Factories/**,
+      **/Repository/**,
+      **/Properties/**,
+      **/Controllers/**,
+      **/*UseCase.cs,
+      **/Dockerfile,
+      **/*.dll,
+      **/Program.cs,
+      **OracleContext.cs**,
+      **Helper**,
+      **Reference.cs**,
+      **/Converter/**,
+      **/Extensions/**,
+      **CacheService.cs**
+  - name: k8sNamespace
+    value: "merchants-establishment"
+
+stages:
+  - stage: "Build"
+    displayName: "Build & Test Stage"
+    jobs:
+      - job:
+        steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET 6 '
+          inputs:
+            packageType: 'sdk'
+            version: 6.x
+            performMultiLevelLookup: true
+            includePreviewVersions: true # Required for preview versions
+
+        - task: SonarCloudPrepare@1
+          displayName: 'SonarCloud Prepare'
+          inputs:
+            SonarCloud: 'SonarCloud'
+            organization: $(sonarCloudOrganization)
+            scannerMode: 'MSBuild'
+            projectKey: $(sonarCloudProjectKey)
+            projectName: $(sonarCloudProjectName)
+            extraProperties: |
+              sonar.verbose=true
+              sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+              sonar.cs.opencover.reportsPaths=$(Agent.BuildDirectory)/**/coverage.opencover.xml
+              sonar.exclusions=$(sonarCloudExclusions)
+
+        - task: DotNetCoreCLI@2
+          displayName: Restore
+          inputs:
+            command: restore
+            projects: '**/*.sln'
+            vstsFeed: '79f3c258-62f0-41df-9f52-8b916da9e6b8'
+
+        - task: DotNetCoreCLI@2
+          displayName: Build
+          inputs:
+            projects: '**/*.sln'
+            arguments: '--configuration Release'
+
+        - task: DotNetCoreCLI@2
+          displayName: Tests
+          inputs:
+            command: test
+            projects: '**/*UnitTest/*.csproj'
+            arguments: '--configuration Release --no-build --collect:"XPlat Code Coverage" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover'
+
+        - task: PublishTestResults@2
+          displayName: 'Publish Test Results'
+          inputs:
+            testRunner: 'VSTest'
+            testResultsFiles: '$(Agent.TempDirectory)/**/*.trx'
+            mergeTestResults: true
+          continueOnError: true
+
+        - task: PublishCodeCoverageResults@1
+          displayName: 'Publish Code Coverage Report'
+          inputs:
+            codeCoverageTool: 'Cobertura'
+            summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+            mergeTestResults: true
+            failIfCoverageEmpty: true
+          continueOnError: true
+
+        - task: SonarCloudAnalyze@1
+          displayName: 'SonarCloud Analyze'
+          continueOnError: true
+
+        - task: SonarCloudPublish@1
+          displayName: 'SonarCloud Publish'
+          inputs:
+            pollingTimeoutSec: '300'
+          continueOnError: true
+
+        - task: replacetokens@3
+          inputs:
+            targetFiles: |
+              **/docker-compose.yml
+              **/docker-compose.Development.yml
+              **/Dockerfile
+            encoding: 'auto'
+            writeBOM: true
+            actionOnMissing: 'warn'
+            keepToken: false
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
+            useLegacyPattern: false
+            enableTelemetry: true
+
+        - task: DockerCompose@0
+          displayName: 'Building Dockers'
+          inputs:
+            containerregistrytype: 'Container Registry'
+            dockerRegistryEndpoint: 'TicketBraRegistryA'
+            dockerComposeFile: '**/docker-compose.yml'
+            additionalDockerComposeFiles: 'docker-compose.Development.yml'
+            qualifyImageNames: false
+            action: 'Build services'
+
+        - task: DockerCompose@0
+          displayName: 'Publishing Dockers'
+          inputs:
+            containerregistrytype: 'Container Registry'
+            dockerRegistryEndpoint: 'TicketBraRegistryA'
+            dockerComposeFile: '**/docker-compose.yml'
+            additionalDockerComposeFiles: 'docker-compose.Development.yml'
+            qualifyImageNames: false
+            action: 'Push services'
+
+        - task: CopyFiles@2
+          displayName: 'Copiando artefatos da aplicação'
+          inputs:
+            SourceFolder: '$(Build.SourcesDirectory)'
+            Contents: |
+              k8s/**
+              azure/**
+            TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publicando artefatos da aplicação'
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'k8s'
+            publishLocation: 'Container'
+
+  - stage: "DeployDEV"
+    displayName: "Deploy Dev Stage"
+    condition: and(succeeded('Build'), not(eq(variables['Build.Reason'], 'PullRequest')))
+    jobs:
+      - deployment:
+        displayName: "Publish to AKS"
+        environment:
+          name: DEV_REDES
+        variables:
+          - group: merchants-establishment-dev
+          - name: replicas
+            value: 1
+          - name: aspnetcore_env
+            value: Development
+          - name: env
+            value: dev
+          - name: limits_cpu
+            value: "0.5"
+          - name: limits_memory
+            value: "512Mi"
+          - name: schedule_retention
+            value: 0 15 * * 1-5
+          - name: schedule_scheduling
+            value: 0 * * * *
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: replacetokens@4
+                  inputs:
+                    targetFiles: "$(Pipeline.Workspace)/**/*.yml"
+                    actionOnNoFiles: "warn"
+                    keepToken: false
+                - task: Kubernetes@1
+                  displayName: "Deploy Namespace"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(devSubscription)
+                    azureResourceGroup: $(devResourceGroup)
+                    kubernetesCluster: $(devCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/namespace.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Secret"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(devSubscription)
+                    azureResourceGroup: $(devResourceGroup)
+                    kubernetesCluster: $(devCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/secret.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Configmap"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(devSubscription)
+                    azureResourceGroup: $(devResourceGroup)
+                    kubernetesCluster: $(devCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/configmap/dev.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Applications"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(devSubscription)
+                    azureResourceGroup: $(devResourceGroup)
+                    kubernetesCluster: $(devCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    arguments: "-f $(Pipeline.Workspace)/k8s/k8s/"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+
+  - stage: "DeployUAT"
+    displayName: "Deploy UAT Stage"
+    condition: and(succeeded('Build'), not(eq(variables['Build.Reason'], 'PullRequest')))
+    jobs:
+      - deployment:
+        displayName: "Publish to AKS"
+        environment:
+          name: UAT_REDES
+        variables:
+          - group: merchants-establishment-uat
+          - name: replicas
+            value: 1
+          - name: aspnetcore_env
+            value: Development
+          - name: env
+            value: uat
+          - name: limits_cpu
+            value: "0.5"
+          - name: limits_memory
+            value: "512Mi"
+          - name: schedule_retention
+            value: 0 15 * * 1-5
+          - name: schedule_scheduling
+            value: 0 * * * *
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: replacetokens@4
+                  inputs:
+                    targetFiles: "$(Pipeline.Workspace)/**/*.yml"
+                    actionOnNoFiles: "warn"
+                    keepToken: false
+                - task: Kubernetes@1
+                  displayName: "Deploy Namespace"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(uatSubscription)
+                    azureResourceGroup: $(uatResourceGroup)
+                    kubernetesCluster: $(uatCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/namespace.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Secret"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(uatSubscription)
+                    azureResourceGroup: $(uatResourceGroup)
+                    kubernetesCluster: $(uatCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/secret.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Configmap"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(uatSubscription)
+                    azureResourceGroup: $(uatResourceGroup)
+                    kubernetesCluster: $(uatCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/configmap/uat.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Applications"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(uatSubscription)
+                    azureResourceGroup: $(uatResourceGroup)
+                    kubernetesCluster: $(uatCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    arguments: "-f $(Pipeline.Workspace)/k8s/k8s/"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+
+  - stage: "DeploySTG"
+    displayName: "Deploy STG Stage"
+    condition: and(succeeded('Build'), not(eq(variables['Build.Reason'], 'PullRequest')))
+    jobs:
+      - deployment:
+        displayName: "Publish to AKS"
+        environment:
+          name: STG_REDES
+        variables:
+          - group: merchants-establishment-stg
+          - name: replicas
+            value: 1
+          - name: aspnetcore_env
+            value: Development
+          - name: env
+            value: stg
+          - name: limits_cpu
+            value: "0.5"
+          - name: limits_memory
+            value: "512Mi"
+          - name: schedule_retention
+            value: 0 15 * * 1-5
+          - name: schedule_scheduling
+            value: 0 * * * *
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: replacetokens@4
+                  inputs:
+                    targetFiles: "$(Pipeline.Workspace)/**/*.yml"
+                    actionOnNoFiles: "warn"
+                    keepToken: false
+                - task: Kubernetes@1
+                  displayName: "Deploy Namespace"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(stgSubscription)
+                    azureResourceGroup: $(stgResourceGroup)
+                    kubernetesCluster: $(stgCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/namespace.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Secret"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(stgSubscription)
+                    azureResourceGroup: $(stgResourceGroup)
+                    kubernetesCluster: $(stgCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/secret.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Configmap"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(stgSubscription)
+                    azureResourceGroup: $(stgResourceGroup)
+                    kubernetesCluster: $(stgCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/configmap/stg.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Applications"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(stgSubscription)
+                    azureResourceGroup: $(stgResourceGroup)
+                    kubernetesCluster: $(stgCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    arguments: "-f $(Pipeline.Workspace)/k8s/k8s/"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+
+  - stage: "DeployPRD"
+    displayName: "Deploy PRD Stage"
+    condition: and(succeeded('Build'), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+    jobs:
+      - deployment:
+        displayName: "Publish to AKS"
+        environment:
+          name: PRD_REDES
+        variables:
+          - group: merchants-establishment-prd
+          - name: replicas
+            value: 1
+          - name: aspnetcore_env
+            value: Production
+          - name: env
+            value: prd
+          - name: limits_cpu
+            value: "0.5"
+          - name: limits_memory
+            value: "512Mi"
+          - name: schedule_retention
+            value: 0 15 * * 1-5
+          - name: schedule_scheduling
+            value: 0,30 21-23 * * *
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: replacetokens@4
+                  inputs:
+                    targetFiles: "$(Pipeline.Workspace)/**/*.yml"
+                    actionOnNoFiles: "warn"
+                    keepToken: false
+                - task: Kubernetes@1
+                  displayName: "Deploy Namespace"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(prdSubscription)
+                    azureResourceGroup: $(prdResourceGroup)
+                    kubernetesCluster: $(prdCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/namespace.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Secret"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(prdSubscription)
+                    azureResourceGroup: $(prdResourceGroup)
+                    kubernetesCluster: $(prdCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/secret.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Configmap"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(prdSubscription)
+                    azureResourceGroup: $(prdResourceGroup)
+                    kubernetesCluster: $(prdCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    useConfigurationFile: true
+                    configuration: "$(Pipeline.Workspace)/k8s/azure/configmap/prd.yml"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true
+                - task: Kubernetes@1
+                  displayName: "Deploy Applications"
+                  inputs:
+                    connectionType: "Azure Resource Manager"
+                    azureSubscriptionEndpoint: $(prdSubscription)
+                    azureResourceGroup: $(prdResourceGroup)
+                    kubernetesCluster: $(prdCluster)
+                    namespace: $(k8sNamespace)
+                    command: "apply"
+                    arguments: "-f $(Pipeline.Workspace)/k8s/k8s/"
+                    secretType: "dockerRegistry"
+                    containerRegistryType: "Azure Container Registry"
+                    forceUpdate: true

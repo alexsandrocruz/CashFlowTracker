@@ -1,0 +1,57 @@
+version: "3.4"
+services:
+  merchants.establishment.api:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.api:latest
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.API/Dockerfile
+  merchants.establishment.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.worker:latest
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Worker/Dockerfile
+  merchants.establishment.contract.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.contract.worker:latest
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Contract.Worker/Dockerfile
+  merchants.establishment.contract.proccess.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.contract.proccess.worker:#{BUILD.BUILDID}#
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Contract.Proccess.Worker/Dockerfile
+  merchants.establishment.address.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.address.worker:latest
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Address.Worker/Dockerfile
+  merchants.establishment.watts.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.watts.worker:#{BUILD.BUILDID}#
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Watts.Worker/Dockerfile
+  merchants.establishment.mass.processing.download.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.mass.processing.download.worker:#{BUILD.BUILDID}#
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Mass.Processing.Download.Worker/Dockerfile
+  merchants.establishment.mass.processing.retention.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.mass.processing.retention.worker:#{BUILD.BUILDID}#
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Mass.Processing.Retention.Worker/Dockerfile
+  merchants.establishment.mass.processing.scheduling.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.mass.processing.scheduling.worker:#{BUILD.BUILDID}#
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Mass.Processing.Scheduling.Worker/Dockerfile
+  merchants.establishment.trails.rollout.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.trails.rollout.worker:#{BUILD.BUILDID}#
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.Trails.Rollout.Worker/Dockerfile
+  merchants.establishment.contractfee.worker:
+    image: ticketbraregistrya.azurecr.io/merchants.establishment.contractfee.worker:latest
+    build:
+      context: .
+      dockerfile: src/Merchants.Establishment.ContractFee.Worker/Dockerfile
