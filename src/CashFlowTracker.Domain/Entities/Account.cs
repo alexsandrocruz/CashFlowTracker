@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CashFlowTracker.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CashFlowTracker.Domain.Entities
@@ -18,6 +19,10 @@ namespace CashFlowTracker.Domain.Entities
         public decimal CurrentBalance { get; set; }
 
         [Required]
-        public string AccountType { get; set; } // Consider using an Enum
+        public AccountType AccountType { get; set; } 
+
+        public ICollection<Transaction> Transactions { get; set; }
+
+        public ICollection<DailyBalance> DailyBalances { get; set; }
     }
 }
