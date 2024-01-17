@@ -12,8 +12,11 @@
     <Folder Include="Commons\Interfaces\" />
     <Folder Include="Commons\Models\" />
     <Folder Include="Commons\Producers\" />
-    <Folder Include="Interfaces\Repository\" />
     <Folder Include="UseCase\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CashFlowTracker.Domain\CashFlowTracker.Domain.csproj" />
   </ItemGroup>
 
 </Project>
