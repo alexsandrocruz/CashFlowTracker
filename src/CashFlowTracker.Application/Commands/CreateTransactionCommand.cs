@@ -1,9 +1,5 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CashFlowTracker.Domain.Enums;
+using MediatR;
 
 namespace CashFlowTracker.Application.Commands
 {
@@ -11,18 +7,9 @@ namespace CashFlowTracker.Application.Commands
     {
         public Guid AccountId { get; set; }
         public decimal Amount { get; set; }
-        public string Type { get; set; } // Exemplo: "Debit" ou "Credit"
+        public TransactionType Type { get; set; }  
         public DateTime Date { get; set; }
         public string Description { get; set; }
-
-        // Construtor
-        public CreateTransactionCommand(Guid accountId, decimal amount, string type, DateTime date, string description)
-        {
-            AccountId = accountId;
-            Amount = amount;
-            Type = type;
-            Date = date;
-            Description = description;
-        }
+        public Guid CategoryId { get; set; }
     }
 }

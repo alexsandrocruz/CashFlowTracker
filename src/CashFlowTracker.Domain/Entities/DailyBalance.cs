@@ -5,9 +5,7 @@ namespace CashFlowTracker.Domain.Entities
 {
     public class DailyBalance : EntityBase
     {
-        [ForeignKey("Account")]
         public Guid AccountId { get; set; }
-        public virtual Account Account { get; set; }
 
         [Required]
         public DateTime Date { get; set; }

@@ -6,9 +6,7 @@ namespace CashFlowTracker.Domain.Entities
 {
     public class Transaction : EntityBase
     {
-        [ForeignKey("Account")]
         public Guid AccountId { get; set; }
-        public virtual Account Account { get; set; }
 
         [Required]
         public TransactionType Type { get; set; } 
@@ -21,8 +19,5 @@ namespace CashFlowTracker.Domain.Entities
         public DateTime TransactionDate { get; set; }
 
         public string Description { get; set; }
-
-        public Guid? CategoryId { get; set; }
-        public virtual Category Category { get; set; }
     }
 }

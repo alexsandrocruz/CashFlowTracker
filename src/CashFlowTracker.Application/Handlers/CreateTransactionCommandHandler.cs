@@ -1,25 +1,39 @@
 ﻿using CashFlowTracker.Application.Commands;
+using CashFlowTracker.Application.Interfaces.Repository;
+using CashFlowTracker.Domain.Entities;
 using MediatR;
 
 namespace CashFlowTracker.Application.Handlers
 {
     public class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand, TransactionResult>
     {
+        private readonly ITransactionRepository _transactionRepository;
+
+        public CreateTransactionCommandHandler(ITransactionRepository transactionRepository)  
+        {
+            _transactionRepository = transactionRepository;
+        }
+
         public async Task<TransactionResult> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                // Aqui você implementaria a lógica para criar a transação
-                // Isso pode incluir validações, manipulação de dados e persistência
+                var transaction = new Transaction
+                {
+                    AccountId = request.AccountId,
+                    Amount = request.Amount,
+                    Type = request.Type,
+                    TransactionDate = request.Date,
+                    Description = request.Description,
+                };
 
-                // Simulando a criação de uma transação
-                var createdTransactionId = Guid.NewGuid(); // Simulação do ID da transação criada
+                await _transactionRepository.AddAsync(transaction);
+                await _transactionRepository.SaveChangesAsync();
 
-                return new TransactionResult { Success = true, Message = "Transação criada com sucesso.", TransactionId = createdTransactionId };
+                return new TransactionResult { Success = true, Message = "Transação criada com sucesso.", TransactionId = transaction.Id };
             }
             catch (Exception ex)
             {
-                // Tratamento de exceções
                 return new TransactionResult { Success = false, Message = ex.Message };
             }
         }

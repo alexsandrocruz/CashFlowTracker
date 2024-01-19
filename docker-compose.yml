@@ -11,7 +11,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
     depends_on:
-      - mongodb
+      - sqlserver
       - redis
       - rabbitmq
     restart: always
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: src/CashFlowTracker.TransactionWorker/Dockerfile
     environment:
-      - "MONGO_URI=mongodb://mongodb:27017"
+      - "SQLSERVER_URI=Server=sqlserver,1433;Database=CashFlowTrackerDb;User Id=sa;Password=OurStrong!Passw0rd;"
       - "REDIS_URI=redis://redis:6379"
       - "RABBITMQ_URI=amqp://rabbitmq"
 
@@ -30,16 +30,19 @@ services:
       context: .
       dockerfile: src/CashFlowTracker.ConsolidationWorker/Dockerfile
     environment:
-      - "MONGO_URI=mongodb://mongodb:27017"
+      - "SQLSERVER_URI=Server=sqlserver,1433;Database=CashFlowTrackerDb;User Id=sa;Password=OurStrong!Passw0rd;"
       - "REDIS_URI=redis://redis:6379"
       - "RABBITMQ_URI=amqp://rabbitmq"
 
-  mongodb:
-    image: mongo:latest
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "OurStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
     ports:
-      - "27017:27017"
+      - "1433:1433"
     volumes:
-      - mongodb_data:/data/db
+      - ./devops:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:latest
@@ -55,5 +58,4 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
 volumes:
-  mongodb_data:
   rabbitmq_data:
