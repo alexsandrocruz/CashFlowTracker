@@ -12,7 +12,6 @@
     <Folder Include="Commons\Interfaces\" />
     <Folder Include="Commons\Models\" />
     <Folder Include="Commons\Producers\" />
-    <Folder Include="DTOs\" />
     <Folder Include="UseCase\" />
   </ItemGroup>
 
@@ -22,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CashFlowTracker.Domain\CashFlowTracker.Domain.csproj" />
+    <ProjectReference Include="..\Infra.RabbitAdapter\CashFlowTracker.Infra.RabbitAdapter.csproj" />
   </ItemGroup>
 
 </Project>

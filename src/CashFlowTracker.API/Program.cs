@@ -2,11 +2,14 @@ using CashFlowTracker.Application.Handlers;
 using CashFlowTracker.Application.Interfaces.Repository;
 using CashFlowTracker.Infra.Data;
 using CashFlowTracker.Infra.Data.Repository;
+using CashFlowTracker.Infra.RabbitAdapter;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton(typeof(RabbitMQConsumer<>)); 
+builder.Services.AddSingleton<RabbitMQProducer>();
 
 builder.Services.AddDbContext<SqlServerContext>();
 

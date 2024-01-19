@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CashFlowTracker.Application\CashFlowTracker.Application.csproj" />
     <ProjectReference Include="..\CashFlowTracker.Infra.Data\CashFlowTracker.Infra.Data.csproj" />
+    <ProjectReference Include="..\Infra.RabbitAdapter\CashFlowTracker.Infra.RabbitAdapter.csproj" />
   </ItemGroup>
 
 </Project>
