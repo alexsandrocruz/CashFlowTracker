@@ -7,9 +7,9 @@ namespace CashFlowTracker.Application.Handlers
 {
     public class StartConsolidationCommandHandler : IRequestHandler<StartConsolidationCommand, ConsolidationResult>
     {
-        private readonly RabbitMQProducer _producer;
+        private readonly IRabbitMQProducer _producer;
 
-        public StartConsolidationCommandHandler(RabbitMQProducer producer)
+        public StartConsolidationCommandHandler(IRabbitMQProducer producer)
         {
             _producer = producer;
         }
