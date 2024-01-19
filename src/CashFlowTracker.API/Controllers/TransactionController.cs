@@ -11,6 +11,11 @@ namespace CashFlowTracker.API.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly IMediator _mediatr;
+        public TransactionController(IMediator mediator)
+        {
+            _mediatr = mediator;
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateTransaction([FromBody] CreateTransactionCommand command)
         {

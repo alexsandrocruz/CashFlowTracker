@@ -11,6 +11,10 @@ namespace CashFlowTracker.API.Controllers
     public class ConsolidationController : ControllerBase
     {
         private readonly IMediator _mediatr;
+        public ConsolidationController(IMediator mediator)
+        {
+            _mediatr = mediator;
+        }
 
         [HttpGet("{date}")]
         public async Task<IActionResult> GetConsolidationReport(DateTime date)
