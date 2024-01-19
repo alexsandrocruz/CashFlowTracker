@@ -2,7 +2,6 @@ using CashFlowTracker.Application.Interfaces;
 using CashFlowTracker.Application.Interfaces.Repository;
 using CashFlowTracker.Application.Messages;
 using CashFlowTracker.Domain.Entities;
-using CashFlowTracker.Infra.Data.Repository;
 using CashFlowTracker.Infra.RabbitAdapter;
 
 namespace CashFlowTracker.Workers;

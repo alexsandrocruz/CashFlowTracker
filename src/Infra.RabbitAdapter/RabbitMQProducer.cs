@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace CashFlowTracker.Infra.RabbitAdapter
 {
-    public class RabbitMQProducer
+    public class RabbitMQProducer : IRabbitMQProducer
     {
         private readonly IModel _channel;
         private readonly IConnection _connection;
@@ -28,7 +28,7 @@ namespace CashFlowTracker.Infra.RabbitAdapter
             _channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
         }
 
-        public void Publish<T>(T message)
+        public virtual void Publish<T>(T message)
         {
             var messageJson = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(messageJson);

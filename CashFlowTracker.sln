@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APIs", "APIs", "{FFBAC07D-C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApplicationCore", "ApplicationCore", "{B0CF9FDA-CDB8-4CC8-BB86-02723A8D67EA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6923BC9A-17D5-49F4-A596-F2245FA19030}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{7C9D9D64-F9BB-4777-93FA-EE52FC7298B6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workers", "Workers", "{29065885-3664-4C1D-A5A3-92EC2EB5C2F5}"
@@ -27,11 +25,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.UnitTest", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.API", "src\CashFlowTracker.API\CashFlowTracker.API.csproj", "{1589DCAB-43FA-4632-8586-D3701047D79C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.TransactionWorker", "src\CashFlowTracker.TransactionWorker\CashFlowTracker.TransactionWorker.csproj", "{DC555AD0-369E-4ACF-8090-77977A45FF13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.TransactionWorker", "src\CashFlowTracker.TransactionWorker\CashFlowTracker.TransactionWorker.csproj", "{DC555AD0-369E-4ACF-8090-77977A45FF13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.ConsolidationWorker", "src\CashFlowTracker.ConsolidationWorker\CashFlowTracker.ConsolidationWorker.csproj", "{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.ConsolidationWorker", "src\CashFlowTracker.ConsolidationWorker\CashFlowTracker.ConsolidationWorker.csproj", "{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.Infra.RabbitAdapter", "src\Infra.RabbitAdapter\CashFlowTracker.Infra.RabbitAdapter.csproj", "{86355F0F-BFE8-4A17-BC4A-73998CF811F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.Infra.RabbitAdapter", "src\Infra.RabbitAdapter\CashFlowTracker.Infra.RabbitAdapter.csproj", "{86355F0F-BFE8-4A17-BC4A-73998CF811F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,7 +76,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FFBAC07D-C398-4099-B52A-2DA0EC9E4D52} = {B2C65DE7-30D5-4E85-9333-B86F65F92284}
 		{B0CF9FDA-CDB8-4CC8-BB86-02723A8D67EA} = {B2C65DE7-30D5-4E85-9333-B86F65F92284}
-		{6923BC9A-17D5-49F4-A596-F2245FA19030} = {B2C65DE7-30D5-4E85-9333-B86F65F92284}
 		{7C9D9D64-F9BB-4777-93FA-EE52FC7298B6} = {B2C65DE7-30D5-4E85-9333-B86F65F92284}
 		{29065885-3664-4C1D-A5A3-92EC2EB5C2F5} = {B2C65DE7-30D5-4E85-9333-B86F65F92284}
 		{6D852D61-CC5E-40FA-B528-513BBF162AB6} = {B0CF9FDA-CDB8-4CC8-BB86-02723A8D67EA}
