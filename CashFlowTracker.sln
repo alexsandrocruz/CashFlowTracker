@@ -19,13 +19,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ACF0142D-A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.Domain", "src\CashFlowTracker.Domain\CashFlowTracker.Domain.csproj", "{6D852D61-CC5E-40FA-B528-513BBF162AB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.Application", "src\CashFlowTracker.Application\CashFlowTracker.Application.csproj", "{904A0D9F-600D-4E27-B7F0-C09516E05111}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.Application", "src\CashFlowTracker.Application\CashFlowTracker.Application.csproj", "{904A0D9F-600D-4E27-B7F0-C09516E05111}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.Infra.Data", "src\CashFlowTracker.Infra.Data\CashFlowTracker.Infra.Data.csproj", "{0D75D28A-7F21-44ED-A17E-AA890C727DAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.Infra.Data", "src\CashFlowTracker.Infra.Data\CashFlowTracker.Infra.Data.csproj", "{0D75D28A-7F21-44ED-A17E-AA890C727DAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.UnitTest", "src\CashFlowTracker.UnitTest\CashFlowTracker.UnitTest.csproj", "{F92E7320-C272-49C0-A259-4EF254680812}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.UnitTest", "src\CashFlowTracker.UnitTest\CashFlowTracker.UnitTest.csproj", "{F92E7320-C272-49C0-A259-4EF254680812}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.API", "src\CashFlowTracker.API\CashFlowTracker.API.csproj", "{1589DCAB-43FA-4632-8586-D3701047D79C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashFlowTracker.API", "src\CashFlowTracker.API\CashFlowTracker.API.csproj", "{1589DCAB-43FA-4632-8586-D3701047D79C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.TransactionWorker", "src\CashFlowTracker.TransactionWorker\CashFlowTracker.TransactionWorker.csproj", "{DC555AD0-369E-4ACF-8090-77977A45FF13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CashFlowTracker.ConsolidationWorker", "src\CashFlowTracker.ConsolidationWorker\CashFlowTracker.ConsolidationWorker.csproj", "{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +57,14 @@ Global
 		{1589DCAB-43FA-4632-8586-D3701047D79C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1589DCAB-43FA-4632-8586-D3701047D79C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1589DCAB-43FA-4632-8586-D3701047D79C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC555AD0-369E-4ACF-8090-77977A45FF13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC555AD0-369E-4ACF-8090-77977A45FF13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC555AD0-369E-4ACF-8090-77977A45FF13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC555AD0-369E-4ACF-8090-77977A45FF13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +80,8 @@ Global
 		{0D75D28A-7F21-44ED-A17E-AA890C727DAA} = {7C9D9D64-F9BB-4777-93FA-EE52FC7298B6}
 		{F92E7320-C272-49C0-A259-4EF254680812} = {ACF0142D-ACA2-49A7-8346-EF47EC2D5191}
 		{1589DCAB-43FA-4632-8586-D3701047D79C} = {FFBAC07D-C398-4099-B52A-2DA0EC9E4D52}
+		{DC555AD0-369E-4ACF-8090-77977A45FF13} = {29065885-3664-4C1D-A5A3-92EC2EB5C2F5}
+		{A2BBB3F9-0AB3-4B79-8164-C6308C8EB2DE} = {29065885-3664-4C1D-A5A3-92EC2EB5C2F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70043316-3D8F-4418-8DAA-81A5DCAE5804}
