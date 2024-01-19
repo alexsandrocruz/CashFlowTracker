@@ -1,7 +1,5 @@
 ﻿using CashFlowTracker.Application.Commands;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CashFlowTracker.Application.Handlers
 {

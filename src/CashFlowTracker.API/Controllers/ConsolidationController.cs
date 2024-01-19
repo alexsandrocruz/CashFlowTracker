@@ -1,7 +1,5 @@
 ﻿using CashFlowTracker.Application.Commands;
-using CashFlowTracker.Application.Contracts;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashFlowTracker.API.Controllers
@@ -31,6 +29,5 @@ namespace CashFlowTracker.API.Controllers
             else
                 return BadRequest(result);
         }
-
     }
 }
