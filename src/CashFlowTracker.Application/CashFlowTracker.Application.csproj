@@ -8,11 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Boundaries\" />
-    <Folder Include="Commons\Consumers\" />
-    <Folder Include="Commons\Interfaces\" />
-    <Folder Include="Commons\Models\" />
-    <Folder Include="Commons\Producers\" />
-    <Folder Include="UseCase\" />
   </ItemGroup>
 
   <ItemGroup>

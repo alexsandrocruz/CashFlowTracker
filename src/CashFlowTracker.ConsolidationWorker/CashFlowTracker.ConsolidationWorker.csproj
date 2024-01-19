@@ -13,4 +13,10 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CashFlowTracker.Application\CashFlowTracker.Application.csproj" />
+    <ProjectReference Include="..\CashFlowTracker.Domain\CashFlowTracker.Domain.csproj" />
+    <ProjectReference Include="..\CashFlowTracker.Infra.Data\CashFlowTracker.Infra.Data.csproj" />
+  </ItemGroup>
 </Project>

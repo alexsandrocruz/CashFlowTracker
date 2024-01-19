@@ -14,12 +14,6 @@ namespace CashFlowTracker.API.Controllers
             _mediatr = mediator;
         }
 
-        [HttpGet("{date}")]
-        public async Task<IActionResult> GetConsolidationReport(DateTime date)
-        {
-            return Ok(date);
-        }
-
         [HttpPost("start-consolidation")]
         public async Task<IActionResult> StartConsolidation([FromBody] StartConsolidationCommand command)
         {

@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using CashFlowTracker.Infra.Data;
 using CashFlowTracker.Infra.Data.Repository;
 using CashFlowTracker.Application.Interfaces.Repository;
 using CashFlowTracker.Workers;
-using Microsoft.Extensions.DependencyInjection;
 using CashFlowTracker.Application.Messages;
 using CashFlowTracker.Infra.RabbitAdapter;
 

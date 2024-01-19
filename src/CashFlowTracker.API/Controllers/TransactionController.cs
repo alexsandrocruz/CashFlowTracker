@@ -24,24 +24,6 @@ namespace CashFlowTracker.API.Controllers
                 return Ok(result);
             else
                 return BadRequest(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTransaction(Guid id)
-        {
-            return Ok(id);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTransaction(Guid id)
-        {
-            return Ok(id);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetTransactions([FromQuery] TransactionQueryParameters queryParams)
-        {
-            return Ok(queryParams);
-        }
+        }        
     }
 }
