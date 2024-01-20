@@ -2,8 +2,9 @@
 
 namespace CashFlowTracker.Application.Messages
 {
-    public class TransactionCreatedMessage : BaseMessage
+    public class TransactionUpdatedMessage : BaseMessage
     {
+        public Guid? Id { get; set; }
         public Guid AccountId { get; set; }
         public decimal Amount { get; set; }
         public TransactionType Type { get; set; }

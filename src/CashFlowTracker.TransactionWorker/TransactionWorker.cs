@@ -21,7 +21,7 @@ public class TransactionWorker : BackgroundService
         _consumer.ProcessErrorAsync = ProcessErrorAsync;
     }
 
-    private async Task ProcessMessageAsync(TransactionCreatedMessage message)
+    private async Task ProcessMessageAsync(BaseMessage message)
     {
         using (var scope = _serviceScopeFactory.CreateScope())
         {
@@ -29,26 +29,117 @@ public class TransactionWorker : BackgroundService
 
             try
             {
-                // Processamento da mensagem e criação da transação
-                var transaction = new Transaction
+                switch (message)
                 {
-                    AccountId = message.AccountId,
-                    Amount = message.Amount,
-                    Type = message.Type,
-                    TransactionDate = message.TransactionDate,
-                    Description = message.Description,
-                };
-
-                await transactionRepository.AddAsync(transaction);
-                await transactionRepository.SaveChangesAsync();
-
-                _logger.LogInformation("Transação criada com sucesso: {TransactionId}", transaction.Id);
+                    case TransactionCreatedMessage createdMessage:
+                        await ProcessCreateTransaction(createdMessage, transactionRepository);
+                        break;
+                    case TransactionUpdatedMessage updatedMessage:
+                        await ProcessUpdateTransaction(updatedMessage, transactionRepository);
+                        break;
+                    case TransactionDeletedMessage deletedMessage:
+                        await ProcessDeleteTransaction(deletedMessage.Id, transactionRepository);
+                        break;
+                        // Adicione mais cases conforme necessário
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao processar a mensagem");
             }
         }
+    }
+
+    public async Task<Task> ProcessCreateTransaction(TransactionCreatedMessage message, ITransactionRepository transactionRepository)
+    {
+        try
+        {
+            var transaction = new Transaction
+            {
+                AccountId = message.AccountId,
+                Amount = message.Amount,
+                Type = message.Type,
+                TransactionDate = message.TransactionDate,
+                Description = message.Description,
+            };
+
+            await transactionRepository.AddAsync(transaction);
+            await transactionRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Transação criada com sucesso: {TransactionId}", transaction.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar a mensagem");
+        }
+        return Task.CompletedTask;
+    }
+
+    public async Task<Task> ProcessUpdateTransaction(TransactionUpdatedMessage message, ITransactionRepository transactionRepository)
+    {
+        try
+        {
+            var transaction = new Transaction
+            {
+                AccountId = message.AccountId,
+                Amount = message.Amount,
+                Type = message.Type,
+                TransactionDate = message.TransactionDate,
+                Description = message.Description,
+            };
+
+            transactionRepository.Update(transaction);
+            await transactionRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Transação atualizada com sucesso: {TransactionId}", transaction.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar a mensagem");
+        }
+        return Task.CompletedTask;
+    }
+
+    public async Task<Task> ProcessDeleteTransaction(Guid deletedId, ITransactionRepository transactionRepository)
+    {
+        try
+        {
+            var transaction = new Transaction
+            {
+                Id = deletedId
+            };
+
+            transactionRepository.Update(transaction);
+            await transactionRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Transação excluída com sucesso: {TransactionId}", transaction.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar a mensagem");
+        }
+        return Task.CompletedTask;
+    }
+
+    public async Task<Task> ProcessGetTransaction(Guid getId, ITransactionRepository transactionRepository)
+    {
+        try
+        {
+            var transaction = new Transaction
+            {
+                Id = getId
+            };
+
+            transactionRepository.FindAllAsync(BaseMessage => BaseMessage.Id == getId);
+            await transactionRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Transação obtido com sucesso: {TransactionId}", transaction.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar a mensagem");
+        }
+        return Task.CompletedTask;
     }
 
     private Task ProcessErrorAsync(Exception exception)
